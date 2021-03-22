@@ -13,31 +13,43 @@ const html = `
   <button class="larr">&larr;</button>
 </div>
 <div class="image">
-  ${images.reduce((imageTags, src, index) => {
-    return `
-      ${imageTags}
-      <img src="${src}" class="${index === 0 ? 'visible' : 'right'}" data-index="${index}">
-    `;
-  }, '')}
+  ${
+    images.reduce((accum, curr, idx) => {
+      return `
+        ${accum}
+        <img src="${curr}" class="${idx === 0 ? 'visible' : 'right'}" data-index="${idx}">
+      `;
+    }, '')
+  }
+</div>
+<div class="navigation">
+  ${
+    images.reduce((accum, curr, idx) => {
+      return `
+        ${accum}
+        <span class="${idx === 0 ? 'visible' : 'right'}" data-index="${idx}"></span>
+      `;
+    }, '')
+  }
 </div>
 <div class="next">
   <button class="rarr">&rarr;</button>
 </div>
 `;
 
-function showImage(sliderElm, imageElements, currentImageIndex) {
+function showImage(sliderElm, imageAndNavigationElements, currentImageIndex) {
   const visible = sliderElm.querySelector('.visible');
   visible.className = '';
 
-  Array.prototype.forEach.call(imageElements, (imageElement) => {
-    const { index } = imageElement.dataset;
+  Array.prototype.forEach.call(imageAndNavigationElements, (elm) => {
+    const { index } = elm.dataset;
 
     if (index < currentImageIndex) {
-      imageElement.className = 'left';
+      elm.className = 'left';
     } else if (index > currentImageIndex) {
-      imageElement.className = 'right';
+      elm.className = 'right';
     } else {
-      imageElement.className = 'visible';
+      elm.className = 'visible';
     }
   });
 }
@@ -45,11 +57,11 @@ function showImage(sliderElm, imageElements, currentImageIndex) {
 const sliderElement = document.createElement('div');
 sliderElement.className = 'slider';
 sliderElement.innerHTML = html;
-const imageElements = sliderElement.querySelectorAll(`img[data-index]`);
+const imageAndNavigationElements = sliderElement.querySelectorAll(`[data-index]`);
 
 sliderElement.querySelector('.rarr').addEventListener('click', () => {
   index = (index + 1) % images.length;
-  showImage(sliderElement, imageElements, index);
+  showImage(sliderElement, imageAndNavigationElements, index);
 });
 
 sliderElement.querySelector('.larr').addEventListener('click', () => {
@@ -59,7 +71,7 @@ sliderElement.querySelector('.larr').addEventListener('click', () => {
     index = images.length - 1;
   }
 
-  showImage(sliderElement, imageElements, index);
+  showImage(sliderElement, imageAndNavigationElements, index);
 });
 
 export default sliderElement;
