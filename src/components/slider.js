@@ -1,8 +1,8 @@
 import './slider.css';
 
-let index = 0;
+let visibleIndex = 0;
 
-const images = [
+const imageList = [
   '../src/images/graduation.jpg',
   '../src/images/rocket.jpg',
   '../src/images/telescope.jpg',
@@ -13,24 +13,18 @@ const html = `
   <button class="larr">&larr;</button>
 </div>
 <div class="image">
-  ${
-    images.reduce((accum, curr, idx) => {
-      return `
-        ${accum}
-        <img src="${curr}" class="${idx === 0 ? 'visible' : 'right'}" data-index="${idx}">
-      `;
-    }, '')
-  }
+  ${imageList.reduce((accum, curr, idx) => {
+    return `${accum}<img src="${curr}" class="${
+      idx === 0 ? 'visible' : 'right'
+    }" data-index="${idx}">`;
+  }, '')}
 </div>
 <div class="navigation">
-  ${
-    images.reduce((accum, curr, idx) => {
-      return `
-        ${accum}
-        <span class="${idx === 0 ? 'visible' : 'right'}" data-index="${idx}"></span>
-      `;
-    }, '')
-  }
+  ${imageList.reduce((accum, curr, idx) => {
+    return `${accum}<span class="${
+      idx === 0 ? 'visible' : 'right'
+    }" data-index="${idx}"></span>`;
+  }, '')}
 </div>
 <div class="next">
   <button class="rarr">&rarr;</button>
@@ -42,36 +36,78 @@ function showImage(sliderElm, imageAndNavigationElements, currentImageIndex) {
   visible.className = '';
 
   Array.prototype.forEach.call(imageAndNavigationElements, (elm) => {
-    const { index } = elm.dataset;
+    const shadowElm = elm;
+    const { index } = shadowElm.dataset;
 
     if (index < currentImageIndex) {
-      elm.className = 'left';
+      shadowElm.className = 'left';
     } else if (index > currentImageIndex) {
-      elm.className = 'right';
+      shadowElm.className = 'right';
     } else {
-      elm.className = 'visible';
+      shadowElm.className = 'visible';
     }
   });
 }
 
+function showRightImage(
+  images,
+  currentIdx,
+  sliderElement,
+  imageAndNavigationElements,
+) {
+  const nextIdx = (currentIdx + 1) % images.length;
+  showImage(sliderElement, imageAndNavigationElements, nextIdx);
+  return nextIdx;
+}
+
+function showLeftImage(
+  images,
+  currentIdx,
+  sliderElement,
+  imageAndNavigationElements,
+) {
+  let nextIdx = (currentIdx - 1) % imageList.length;
+
+  if (nextIdx < 0) {
+    nextIdx = imageList.length - 1;
+  }
+
+  showImage(sliderElement, imageAndNavigationElements, nextIdx);
+
+  return nextIdx;
+}
+
+// eslint-disable-next-line no-undef
 const sliderElement = document.createElement('div');
 sliderElement.className = 'slider';
 sliderElement.innerHTML = html;
-const imageAndNavigationElements = sliderElement.querySelectorAll(`[data-index]`);
+const imageAndNavigationElements = sliderElement.querySelectorAll('[data-index]');
 
 sliderElement.querySelector('.rarr').addEventListener('click', () => {
-  index = (index + 1) % images.length;
-  showImage(sliderElement, imageAndNavigationElements, index);
+  visibleIndex = showRightImage(
+    imageList,
+    visibleIndex,
+    sliderElement,
+    imageAndNavigationElements,
+  );
 });
 
 sliderElement.querySelector('.larr').addEventListener('click', () => {
-  index = (index - 1) % images.length;
-
-  if (index < 0) {
-    index = images.length - 1;
-  }
-
-  showImage(sliderElement, imageAndNavigationElements, index);
+  visibleIndex = showLeftImage(
+    imageList,
+    visibleIndex,
+    sliderElement,
+    imageAndNavigationElements,
+  );
 });
+
+setInterval(() => {
+  visibleIndex = showRightImage(
+    imageList,
+    visibleIndex,
+    sliderElement,
+    imageAndNavigationElements,
+  );
+}, 5000);
 
 export default sliderElement;

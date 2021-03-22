@@ -39,6 +39,7 @@ const html = `
 </div>
 `;
 
+// eslint-disable-next-line no-undef
 const elm = document.createElement('div');
 elm.setAttribute('id', 'navbar1');
 elm.className = 'navbar';
